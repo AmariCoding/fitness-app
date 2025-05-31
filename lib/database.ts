@@ -1,10 +1,14 @@
 import { ID, Query } from "react-native-appwrite";
-import { databases, executeWithRetry } from "./appwrite";
+import { client, databases, executeWithRetry, storage } from "./appwrite";
 
 // Database and Collection IDs - you'll need to create these in Appwrite Console
 export const DATABASE_ID = "fit-app-db";
 export const WORKOUT_PROGRESS_COLLECTION_ID = "workout-progress";
 export const USER_STATS_COLLECTION_ID = "user-stats";
+export const PROGRESS_PHOTOS_COLLECTION_ID = "progress-photos";
+
+// Storage Bucket ID - you'll need to create this in Appwrite Console
+export const PROGRESS_PHOTOS_BUCKET_ID = "progress-photos-bucket";
 
 // Types for our database models
 export interface WorkoutProgress {
@@ -33,6 +37,19 @@ export interface UserStats {
   updatedAt: string;
 }
 
+// Add ProgressPhoto type
+export type ProgressPhoto = {
+  $id: string;
+  userId: string;
+  fileId: string;
+  fileUrl: string;
+  title: string;
+  description?: string;
+  weight?: number;
+  bodyPart: "front" | "side" | "back" | "other";
+  uploadedAt: string;
+};
+
 // Workout Progress Functions
 export async function saveWorkoutProgress(
   progressData: Omit<WorkoutProgress, "$id">
@@ -50,27 +67,25 @@ export async function saveWorkoutProgress(
     // Update user stats after saving progress
     await updateUserStats(progressData.userId, progressData);
 
-    return result as WorkoutProgress;
+    return result as unknown as WorkoutProgress;
   } catch (error) {
     console.error("Error saving workout progress:", error);
     throw error;
   }
 }
 
-export async function getUserWorkoutHistory(
-  userId: string,
-  limit = 20
+export async function getWorkoutHistory(
+  userId: string
 ): Promise<WorkoutProgress[]> {
   try {
     const result = await executeWithRetry(() =>
       databases.listDocuments(DATABASE_ID, WORKOUT_PROGRESS_COLLECTION_ID, [
         Query.equal("userId", userId),
         Query.orderDesc("completedAt"),
-        Query.limit(limit),
       ])
     );
 
-    return result.documents as WorkoutProgress[];
+    return result.documents as unknown as WorkoutProgress[];
   } catch (error) {
     console.error("Error fetching workout history:", error);
     throw error;
@@ -86,7 +101,7 @@ export async function getUserStats(userId: string): Promise<UserStats | null> {
     );
 
     if (result.documents.length > 0) {
-      return result.documents[0] as UserStats;
+      return result.documents[0] as unknown as UserStats;
     }
 
     // Create initial stats if none exist
@@ -122,7 +137,7 @@ export async function createInitialUserStats(
       )
     );
 
-    return result as UserStats;
+    return result as unknown as UserStats;
   } catch (error) {
     console.error("Error creating initial user stats:", error);
     throw error;
@@ -201,7 +216,7 @@ export async function getWorkoutStats(userId: string) {
   try {
     const [userStats, recentWorkouts] = await Promise.all([
       getUserStats(userId),
-      getUserWorkoutHistory(userId, 7), // Last 7 workouts
+      getWorkoutHistory(userId), // Last 7 workouts
     ]);
 
     return {
@@ -235,4 +250,185 @@ function calculateWeeklyProgress(workouts: WorkoutProgress[]) {
       (w) => w.workoutCategory === "physical"
     ).length,
   };
+}
+
+// Progress Photos Functions
+export async function uploadProgressPhoto(
+  uri: string,
+  progressData: Omit<ProgressPhoto, "$id" | "fileId" | "fileUrl">
+): Promise<ProgressPhoto> {
+  try {
+    // For React Native, create file object compatible with Appwrite
+    const fileName = `progress-${Date.now()}.jpg`;
+    const file = {
+      name: fileName,
+      type: "image/jpeg",
+      size: 0, // Will be determined by Appwrite
+      uri: uri,
+    };
+
+    console.log("Uploading file to storage...", fileName);
+
+    // Upload file to Appwrite Storage
+    const fileUpload = await executeWithRetry(() =>
+      storage.createFile(PROGRESS_PHOTOS_BUCKET_ID, ID.unique(), file)
+    );
+
+    console.log("File uploaded successfully:", fileUpload.$id);
+
+    // Generate file URL - try multiple approaches for maximum compatibility
+    let fileUrlString: string;
+
+    try {
+      // First try: Use getFileView method
+      const fileUrl = storage.getFileView(
+        PROGRESS_PHOTOS_BUCKET_ID,
+        fileUpload.$id
+      );
+      fileUrlString =
+        typeof fileUrl === "string"
+          ? fileUrl
+          : fileUrl.href || fileUrl.toString();
+      console.log("Generated file URL using getFileView:", fileUrlString);
+    } catch (urlError) {
+      console.warn("getFileView failed, constructing URL manually:", urlError);
+      // Fallback: Construct URL manually (as suggested in Appwrite community)
+      const endpoint = client.config.endpoint || "https://cloud.appwrite.io/v1";
+      fileUrlString = `${endpoint}/storage/buckets/${PROGRESS_PHOTOS_BUCKET_ID}/files/${fileUpload.$id}/view`;
+      console.log("Generated file URL manually:", fileUrlString);
+    }
+
+    // Save progress photo metadata to database
+    const photoData = {
+      ...progressData,
+      fileId: fileUpload.$id,
+      fileUrl: fileUrlString,
+    };
+
+    console.log("Saving photo metadata to database...");
+
+    const result = await executeWithRetry(() =>
+      databases.createDocument(
+        DATABASE_ID,
+        PROGRESS_PHOTOS_COLLECTION_ID,
+        ID.unique(),
+        photoData
+      )
+    );
+
+    console.log("Photo metadata saved successfully:", result.$id);
+
+    return result as unknown as ProgressPhoto;
+  } catch (error) {
+    console.error("Error uploading progress photo:", error);
+    // Log more detailed error information
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
+    throw error;
+  }
+}
+
+export async function getUserProgressPhotos(
+  userId: string
+): Promise<ProgressPhoto[]> {
+  try {
+    const result = await executeWithRetry(() =>
+      databases.listDocuments(DATABASE_ID, PROGRESS_PHOTOS_COLLECTION_ID, [
+        Query.equal("userId", userId),
+        Query.orderDesc("uploadedAt"),
+      ])
+    );
+
+    return result.documents as unknown as ProgressPhoto[];
+  } catch (error) {
+    console.error("Error fetching progress photos:", error);
+    throw error;
+  }
+}
+
+export async function deleteProgressPhoto(
+  photoId: string,
+  fileId: string
+): Promise<void> {
+  try {
+    // Delete from storage
+    await executeWithRetry(() =>
+      storage.deleteFile(PROGRESS_PHOTOS_BUCKET_ID, fileId)
+    );
+
+    // Delete from database
+    await executeWithRetry(() =>
+      databases.deleteDocument(
+        DATABASE_ID,
+        PROGRESS_PHOTOS_COLLECTION_ID,
+        photoId
+      )
+    );
+  } catch (error) {
+    console.error("Error deleting progress photo:", error);
+    throw error;
+  }
+}
+
+// Debug function to test file accessibility
+export async function testFileAccess(
+  fileId: string
+): Promise<{ accessible: boolean; url: string; error?: string }> {
+  try {
+    // Try multiple URL generation methods
+    const methods = [
+      () => {
+        const fileUrl = storage.getFileView(PROGRESS_PHOTOS_BUCKET_ID, fileId);
+        return typeof fileUrl === "string"
+          ? fileUrl
+          : fileUrl.href || fileUrl.toString();
+      },
+      () => {
+        const endpoint =
+          client.config.endpoint || "https://cloud.appwrite.io/v1";
+        return `${endpoint}/storage/buckets/${PROGRESS_PHOTOS_BUCKET_ID}/files/${fileId}/view`;
+      },
+      () => {
+        const endpoint =
+          client.config.endpoint || "https://cloud.appwrite.io/v1";
+        return `${endpoint}/storage/buckets/${PROGRESS_PHOTOS_BUCKET_ID}/files/${fileId}/preview`;
+      },
+    ];
+
+    for (let i = 0; i < methods.length; i++) {
+      try {
+        const url = methods[i]();
+        console.log(`Testing URL method ${i + 1}:`, url);
+
+        // Test if URL is accessible (basic fetch test)
+        const response = await fetch(url, { method: "HEAD" });
+        if (response.ok) {
+          console.log(`✅ URL method ${i + 1} successful:`, url);
+          return { accessible: true, url };
+        } else {
+          console.log(
+            `❌ URL method ${i + 1} failed with status:`,
+            response.status
+          );
+        }
+      } catch (methodError) {
+        console.log(`❌ URL method ${i + 1} failed:`, methodError);
+      }
+    }
+
+    return {
+      accessible: false,
+      url: methods[0](),
+      error: "All URL methods failed accessibility test",
+    };
+  } catch (error) {
+    console.error("Error testing file access:", error);
+    return {
+      accessible: false,
+      url: "",
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
+  }
 }

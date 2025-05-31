@@ -1,4 +1,4 @@
-import { Account, Client, Databases } from "react-native-appwrite";
+import { Account, Client, Databases, Storage } from "react-native-appwrite";
 import { getConfig, logConfig } from "./config";
 
 // Get AppWrite configuration from environment with fallbacks
@@ -21,6 +21,9 @@ export const account = new Account(client);
 
 // Export databases service for future use
 export const databases = new Databases(client);
+
+// Export storage service for image uploads
+export const storage = new Storage(client);
 
 // Log configuration in development
 if (__DEV__) {

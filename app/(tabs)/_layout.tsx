@@ -1,43 +1,47 @@
-import AntDesign from "@expo/vector-icons/AntDesign";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
+import { useAppTheme } from "@/lib/theme-context";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Tabs } from "expo-router";
+import { StyleSheet } from "react-native";
 
-export default function TabsLayout() {
+export default function TabLayout() {
+  const { theme } = useAppTheme();
+
   return (
     <Tabs
       screenOptions={{
-        headerStyle: { backgroundColor: "#f5f5f5" },
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.textSecondary,
+        tabBarStyle: [
+          styles.tabBar,
+          { backgroundColor: theme.colors.background },
+        ],
         headerShown: false,
-        tabBarStyle: {
-          backgroundColor: "#f5f5f5",
-          borderTopWidth: 0,
-          elevation: 0,
-          shadowOpacity: 0,
-        },
-        tabBarActiveTintColor: "#6200ee",
-        tabBarInactiveTintColor: "#6200ee",
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color, focused }) => {
-            return focused ? (
-              <FontAwesome5 name="home" size={24} color={color} />
-            ) : (
-              <AntDesign name="home" size={24} color={color} />
-            );
-          },
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="home" size={24} color={color} />
+          ),
         }}
       />
       <Tabs.Screen
         name="my-trainer"
         options={{
-          title: "MindSet",
+          title: "Trainer",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons name="brain" size={24} color={color} />
+            <Ionicons name="fitness" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="progress"
+        options={{
+          title: "Progress",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="camera" size={24} color={color} />
           ),
         }}
       />
@@ -46,10 +50,18 @@ export default function TabsLayout() {
         options={{
           title: "Account",
           tabBarIcon: ({ color }) => (
-            <AntDesign name="user" size={24} color={color} />
+            <Ionicons name="person" size={24} color={color} />
           ),
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBar: {
+    borderTopWidth: 0,
+    elevation: 0,
+    shadowOpacity: 0,
+  },
+});

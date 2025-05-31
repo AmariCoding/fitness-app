@@ -1,8 +1,10 @@
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { OnboardingProvider, useOnboarding } from "@/lib/onboarding-context";
-import { ThemeProvider } from "@/lib/theme-context";
+import { ThemeProvider, useAppTheme } from "@/lib/theme-context";
+import { UnitsProvider } from "@/lib/units-context";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
+import { PaperProvider } from "react-native-paper";
 
 function RouteGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -52,27 +54,57 @@ function RouteGuard({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function AppContent() {
+  const { theme } = useAppTheme();
+
+  // Create Paper theme from our app theme
+  const paperTheme = {
+    ...theme,
+    colors: {
+      ...theme.colors,
+      // Map our theme colors to Paper's expected structure
+      surface: theme.colors.card,
+      onSurface: theme.colors.text,
+      surfaceVariant: theme.colors.surface,
+      onSurfaceVariant: theme.colors.textSecondary,
+      outline: theme.colors.border,
+    },
+  };
+
+  return (
+    <PaperProvider theme={paperTheme}>
+      <UnitsProvider>
+        <AuthProvider>
+          <OnboardingProvider>
+            <RouteGuard>
+              <Stack>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="login" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="onboarding"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="workout-session"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="terms-of-service"
+                  options={{ headerShown: false }}
+                />
+              </Stack>
+            </RouteGuard>
+          </OnboardingProvider>
+        </AuthProvider>
+      </UnitsProvider>
+    </PaperProvider>
+  );
+}
+
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <OnboardingProvider>
-          <RouteGuard>
-            <Stack>
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="login" options={{ headerShown: false }} />
-              <Stack.Screen
-                name="onboarding"
-                options={{ headerShown: false }}
-              />
-              <Stack.Screen
-                name="workout-session"
-                options={{ headerShown: false }}
-              />
-            </Stack>
-          </RouteGuard>
-        </OnboardingProvider>
-      </AuthProvider>
+      <AppContent />
     </ThemeProvider>
   );
 }

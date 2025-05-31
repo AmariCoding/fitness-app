@@ -30,7 +30,7 @@ const workouts: Workout[] = [
       "Mental exercises designed to enhance your concentration and focus during competition",
     duration: "10 mins",
     difficulty: "Beginner",
-    image: "https://images.unsplash.com/photo-1594723113349-901a7e089591",
+    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b",
     category: "mental",
     benefits: [
       "Improved focus",
@@ -119,7 +119,7 @@ const workouts: Workout[] = [
       "Build your mental stamina to stay focused throughout long competitions",
     duration: "20 mins",
     difficulty: "Advanced",
-    image: "https://images.unsplash.com/photo-1521737604893-d14cc5a21ca0",
+    image: "https://images.unsplash.com/photo-1552196563-55cd4e45efb3",
     category: "mental",
     benefits: [
       "Increased mental stamina",
@@ -269,14 +269,14 @@ export default function MyTrainerScreen() {
               <Chip
                 mode="outlined"
                 style={[styles.chip, { borderColor: theme.colors.primary }]}
-                textStyle={{ color: theme.colors.primary, fontSize: 10 }}
+                textStyle={{ color: theme.colors.primary, fontSize: 9 }}
               >
                 {item.difficulty}
               </Chip>
               <Chip
                 mode="outlined"
                 style={[styles.chip, { borderColor: theme.colors.primary }]}
-                textStyle={{ color: theme.colors.primary, fontSize: 10 }}
+                textStyle={{ color: theme.colors.primary, fontSize: 9 }}
               >
                 {item.duration}
               </Chip>
@@ -476,7 +476,7 @@ const createStyles = (theme: any) =>
     cardHeader: {
       flexDirection: "row",
       justifyContent: "space-between",
-      alignItems: "flex-start",
+      alignItems: "center",
       marginBottom: 8,
     },
     workoutTitle: {
@@ -491,7 +491,7 @@ const createStyles = (theme: any) =>
     },
     chip: {
       marginBottom: 4,
-      height: 24,
+      height: 36,
     },
     workoutDescription: {
       fontFamily: "Roboto_400Regular",

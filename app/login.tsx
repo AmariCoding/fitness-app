@@ -1,4 +1,5 @@
 import { useAuth } from "@/lib/auth-context";
+import { useAppTheme } from "@/lib/theme-context";
 import {
   Oswald_500Medium,
   Oswald_700Bold,
@@ -15,14 +16,15 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { Button, Text, TextInput, useTheme } from "react-native-paper";
+import { Button, Text, TextInput } from "react-native-paper";
 
 export default function MindsetLoginScreen() {
   const [isSignUp, setIsSignUp] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>("");
-  const theme = useTheme();
+  const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
+  const { theme } = useAppTheme();
   const router = useRouter();
   const { signUp, signIn } = useAuth();
 
@@ -71,6 +73,10 @@ export default function MindsetLoginScreen() {
     setIsSignUp((prev) => !prev);
   };
 
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible((prev) => !prev);
+  };
+
   const renderBackground = () => {
     try {
       // Try to use the image background if it exists
@@ -83,10 +89,14 @@ export default function MindsetLoginScreen() {
         </ImageBackground>
       );
     } catch (error) {
-      // Fallback to gradient if image doesn't exist
+      // Fallback to gradient that matches the app theme
       return (
         <LinearGradient
-          colors={["#1a2a6c", "#b21f1f", "#fdbb2d"]}
+          colors={[
+            theme.colors.primary,
+            theme.colors.accent,
+            theme.colors.primary,
+          ]}
           style={styles.backgroundImage}
         >
           <View style={styles.overlay}>{renderContent()}</View>
@@ -124,21 +134,26 @@ export default function MindsetLoginScreen() {
               onChangeText={setEmail}
               left={<TextInput.Icon icon="email" />}
               theme={{
-                colors: { primary: "#ff6b00" },
+                colors: { primary: theme.colors.primary },
               }}
             />
 
             <TextInput
               label="Password"
               autoCapitalize="none"
-              secureTextEntry={true}
+              secureTextEntry={!isPasswordVisible}
               mode="outlined"
               style={styles.input}
               onChangeText={setPassword}
               left={<TextInput.Icon icon="lock" />}
-              right={<TextInput.Icon icon="eye" />}
+              right={
+                <TextInput.Icon
+                  icon={isPasswordVisible ? "eye-off" : "eye"}
+                  onPress={togglePasswordVisibility}
+                />
+              }
               theme={{
-                colors: { primary: "#ff6b00" },
+                colors: { primary: theme.colors.primary },
               }}
             />
 
@@ -148,7 +163,7 @@ export default function MindsetLoginScreen() {
               mode="contained"
               style={styles.button}
               onPress={handleAuth}
-              buttonColor="#ff6b00"
+              buttonColor={theme.colors.primary}
               textColor="#FFFFFF"
               icon="dumbbell"
               labelStyle={styles.buttonText}
@@ -160,7 +175,7 @@ export default function MindsetLoginScreen() {
               mode="text"
               onPress={handleSwitchMode}
               style={styles.switchModeButton}
-              textColor="#ff6b00"
+              textColor={theme.colors.primary}
               labelStyle={styles.switchButtonText}
             >
               {isSignUp

@@ -8,6 +8,10 @@ type AuthContextType = {
   signUp: (email: string, password: string) => Promise<string | null>;
   signIn: (email: string, password: string) => Promise<string | null>;
   signOut: () => Promise<void>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string
+  ) => Promise<string | null>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -97,9 +101,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ) => {
+    try {
+      await executeWithRetry(() =>
+        account.updatePassword(newPassword, currentPassword)
+      );
+      return null;
+    } catch (error) {
+      if (error instanceof AppwriteException) {
+        // Handle specific Appwrite errors
+        if (
+          error.code === 401 ||
+          error.message.includes("user_invalid_credentials")
+        ) {
+          return "Current password is incorrect. Please try again.";
+        } else if (
+          error.code === 400 ||
+          error.message.includes("password_recently_used")
+        ) {
+          return "This password was recently used. Please choose a different password.";
+        } else if (
+          error.code === 400 ||
+          error.message.includes("password_personal_data")
+        ) {
+          return "Password cannot contain personal information. Please choose a different password.";
+        } else if (error.code === 429 || error.message.includes("rate_limit")) {
+          return "Too many requests. Please wait a moment before trying again.";
+        } else {
+          return error.message || "Failed to change password";
+        }
+      } else if (error instanceof Error) {
+        return error.message;
+      } else {
+        return "An unknown error occurred while changing password";
+      }
+    }
+  };
+
   return (
     <AuthContext.Provider
-      value={{ user, isLoadingUser, signUp, signIn, signOut }}
+      value={{
+        user,
+        isLoadingUser,
+        signUp,
+        signIn,
+        signOut,
+        changePassword,
+      }}
     >
       {children}
     </AuthContext.Provider>

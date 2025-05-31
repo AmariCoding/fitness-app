@@ -26,9 +26,9 @@ type Workout = {
 const sampleWorkouts: Workout[] = [
   {
     id: "1",
-    title: "Focus Training",
+    title: "Focus Builder",
     description: "Sharpen your concentration with targeted mental exercises",
-    image: "https://images.unsplash.com/photo-1594723113349-901a7e089591",
+    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b",
     duration: "10 min",
     level: "Beginner",
     category: "mental",

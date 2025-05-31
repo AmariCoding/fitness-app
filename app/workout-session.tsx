@@ -978,6 +978,8 @@ const createStyles = (theme: any) =>
     },
     startButton: {
       marginTop: 20,
+      marginBottom: 40,
+      marginHorizontal: 16,
     },
     actionButton: {
       marginTop: 20,
