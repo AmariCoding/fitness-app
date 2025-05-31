@@ -2,7 +2,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useOnboarding } from "@/lib/onboarding-context";
 import { Oswald_700Bold, useFonts } from "@expo-google-fonts/oswald";
 import { Roboto_400Regular, Roboto_500Medium } from "@expo-google-fonts/roboto";
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Button, Card, Divider, Text } from "react-native-paper";
@@ -14,32 +14,79 @@ type Workout = {
   image: string;
   duration: string;
   level: string;
+  category: "mental" | "physical";
+  exercises?: string[];
+  quote?: string;
+  quoteAuthor?: string;
 };
 
 const sampleWorkouts: Workout[] = [
   {
     id: "1",
-    title: "Full Body Blast",
-    description: "High-intensity workout to challenge your entire body",
-    image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438",
-    duration: "30 min",
-    level: "Intermediate",
+    title: "Focus Training",
+    description: "Sharpen your concentration with targeted mental exercises",
+    image: "https://images.unsplash.com/photo-1594723113349-901a7e089591",
+    duration: "10 min",
+    level: "Beginner",
+    category: "mental",
+    exercises: [
+      "Single-point focus meditation",
+      "Visual tracking exercises",
+      "Mindful breathing techniques",
+    ],
+    quote: "Where focus goes, energy flows.",
+    quoteAuthor: "Tony Robbins",
   },
   {
     id: "2",
-    title: "Core Strength",
-    description: "Build a strong foundation with this core-focused routine",
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b",
-    duration: "20 min",
-    level: "Beginner",
+    title: "Decision Making",
+    description: "Improve your ability to make quick decisions under pressure",
+    image: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd",
+    duration: "15 min",
+    level: "Intermediate",
+    category: "mental",
+    exercises: [
+      "Situational scenario analysis",
+      "Rapid pattern recognition tasks",
+      "Timed decision challenges",
+    ],
+    quote:
+      "In any moment of decision, the best thing you can do is the right thing, the next best thing is the wrong thing, and the worst thing you can do is nothing.",
+    quoteAuthor: "Theodore Roosevelt",
   },
   {
     id: "3",
-    title: "Cardio Kickboxing",
-    description: "Burn calories with this high-energy kickboxing workout",
-    image: "https://images.unsplash.com/photo-1549576490-b0b4831ef60a",
-    duration: "45 min",
-    level: "Advanced",
+    title: "Pre-Game Meditation",
+    description: "Center yourself and prepare mentally for competition",
+    image: "https://images.unsplash.com/photo-1545389336-cf090694435e",
+    duration: "8 min",
+    level: "Beginner",
+    category: "mental",
+    exercises: [
+      "Guided visualization",
+      "Body scan relaxation",
+      "Controlled breathing exercises",
+    ],
+    quote:
+      "The mind is the athlete; the body is simply the means it uses to run faster or throw farther.",
+    quoteAuthor: "Bryce Courtenay",
+  },
+  {
+    id: "4",
+    title: "Full Body HIIT",
+    description:
+      "High-intensity interval training to challenge your entire body",
+    image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438",
+    duration: "30 min",
+    level: "Intermediate",
+    category: "physical",
+    exercises: [
+      "Burpees (30 seconds)",
+      "Mountain climbers (45 seconds)",
+      "Jump squats (30 seconds)",
+    ],
+    quote: "The only bad workout is the one that didn't happen.",
+    quoteAuthor: "Unknown",
   },
 ];
 
@@ -47,6 +94,7 @@ export default function Index() {
   const { user, signOut } = useAuth();
   const { isFirstLogin } = useOnboarding();
   const [showWelcomeCard, setShowWelcomeCard] = useState(true);
+  const router = useRouter();
 
   const [fontsLoaded] = useFonts({
     Oswald_700Bold,
@@ -71,13 +119,16 @@ export default function Index() {
     setShowWelcomeCard(false);
   };
 
+  const navigateToTrainer = () => {
+    router.push("/(tabs)/my-trainer");
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.greeting}>
-          Hello, {user?.name || "Fitness Enthusiast"}
-        </Text>
-        <Text style={styles.subheading}>Ready for your workout?</Text>
+        <Text style={styles.appTitle}>MINDSET</Text>
+        <Text style={styles.greeting}>Hello, {user?.name || "Athlete"}</Text>
+        <Text style={styles.subheading}>Train your brain like your body</Text>
       </View>
 
       {showWelcomeCard && (
@@ -86,8 +137,8 @@ export default function Index() {
             <Text style={styles.welcomeTitle}>Welcome to MINDSET!</Text>
             <Text style={styles.welcomeText}>
               You&apos;ve completed the onboarding process. Explore the app to
-              discover personalized workouts, track your progress, and connect
-              with others.
+              discover mental workouts, track your brain training progress, and
+              enhance your athletic performance.
             </Text>
           </Card.Content>
           <Card.Actions>
@@ -97,21 +148,29 @@ export default function Index() {
       )}
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Today&apos;s Workout</Text>
+        <Text style={styles.sectionTitle}>Today&apos;s Mental Workout</Text>
         <Card style={styles.featuredCard}>
           <Card.Cover
             source={{
-              uri: "https://images.unsplash.com/photo-1599058917765-a780eda07a3e",
+              uri: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd",
             }}
           />
           <Card.Content>
-            <Text style={styles.cardTitle}>Morning Energy Boost</Text>
+            <Text style={styles.cardTitle}>Quick Decision Training</Text>
             <Text style={styles.cardDescription}>
-              Start your day with this 15-minute energy-boosting routine
+              Enhance your ability to make smart decisions under pressure with
+              this 10-minute mental workout
             </Text>
             <View style={styles.cardDetails}>
-              <Text style={styles.detailText}>15 min</Text>
-              <Text style={styles.detailText}>Beginner</Text>
+              <Text style={styles.detailText}>10 min</Text>
+              <Text style={styles.detailText}>Mental Focus</Text>
+            </View>
+            <View style={styles.featuredQuoteContainer}>
+              <Text style={styles.featuredQuoteText}>
+                &quot;A good decision is based on knowledge and not on
+                numbers.&quot;
+              </Text>
+              <Text style={styles.featuredQuoteAuthor}>- Plato</Text>
             </View>
           </Card.Content>
           <Card.Actions>
@@ -124,25 +183,75 @@ export default function Index() {
 
       <Divider style={styles.divider} />
 
+      <View style={styles.statsSection}>
+        <Text style={styles.sectionTitle}>Your Mental Progress</Text>
+        <View style={styles.statsContainer}>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>7</Text>
+            <Text style={styles.statLabel}>Workouts Completed</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>+12%</Text>
+            <Text style={styles.statLabel}>Focus Improvement</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statValue}>15</Text>
+            <Text style={styles.statLabel}>Meditation Minutes</Text>
+          </View>
+        </View>
+      </View>
+
+      <Divider style={styles.divider} />
+
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Recommended For You</Text>
+        <Text style={styles.sectionTitle}>Brain Training Exercises</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          {sampleWorkouts.map((workout) => (
-            <Card key={workout.id} style={styles.horizontalCard}>
-              <Card.Cover
-                source={{ uri: workout.image }}
-                style={styles.horizontalCardImage}
-              />
-              <Card.Content>
-                <Text style={styles.horizontalCardTitle}>{workout.title}</Text>
-                <View style={styles.cardDetails}>
-                  <Text style={styles.detailText}>{workout.duration}</Text>
-                  <Text style={styles.detailText}>{workout.level}</Text>
-                </View>
-              </Card.Content>
-            </Card>
-          ))}
+          {sampleWorkouts
+            .filter((workout) => workout.category === "mental")
+            .map((workout) => (
+              <Card
+                key={workout.id}
+                style={styles.horizontalCard}
+                onPress={navigateToTrainer}
+              >
+                <Card.Cover
+                  source={{ uri: workout.image }}
+                  style={styles.horizontalCardImage}
+                />
+                <Card.Content>
+                  <Text style={styles.horizontalCardTitle}>
+                    {workout.title}
+                  </Text>
+                  <View style={styles.cardDetails}>
+                    <Text style={styles.detailText}>{workout.duration}</Text>
+                    <Text style={styles.detailText}>{workout.level}</Text>
+                  </View>
+                  {workout.quote && (
+                    <Text style={styles.horizontalQuoteText}>
+                      &quot;
+                      {workout.quote.length > 60
+                        ? workout.quote.substring(0, 60) + "..."
+                        : workout.quote}
+                      &quot;
+                    </Text>
+                  )}
+                </Card.Content>
+              </Card>
+            ))}
         </ScrollView>
+      </View>
+
+      <View style={styles.inspirationSection}>
+        <Text style={styles.sectionTitle}>Inspiration</Text>
+        <Card style={styles.inspirationCard}>
+          <Card.Content>
+            <Text style={styles.quoteText}>
+              &quot;Physical strength is measured by what we can carry; mental
+              strength is measured by what we can bear.&quot;
+            </Text>
+            <Text style={styles.quoteAuthor}>- Mark Twain</Text>
+          </Card.Content>
+        </Card>
       </View>
 
       <View style={styles.logoutContainer}>
@@ -161,37 +270,38 @@ const styles = StyleSheet.create({
   },
   header: {
     padding: 20,
-    paddingTop: 40,
     backgroundColor: "#6200ee",
+  },
+  appTitle: {
+    fontFamily: "Oswald_700Bold",
+    fontSize: 26,
+    color: "white",
+    marginBottom: 8,
   },
   greeting: {
     fontFamily: "Oswald_700Bold",
-    fontSize: 28,
-    color: "#fff",
-    marginBottom: 5,
+    fontSize: 20,
+    color: "white",
+    marginBottom: 4,
   },
   subheading: {
     fontFamily: "Roboto_400Regular",
     fontSize: 16,
-    color: "rgba(255,255,255,0.8)",
+    color: "rgba(255, 255, 255, 0.8)",
   },
   welcomeCard: {
     margin: 16,
     elevation: 4,
-    borderRadius: 8,
-    backgroundColor: "#fff",
   },
   welcomeTitle: {
     fontFamily: "Oswald_700Bold",
-    fontSize: 18,
+    fontSize: 20,
     marginBottom: 8,
-    color: "#6200ee",
   },
   welcomeText: {
     fontFamily: "Roboto_400Regular",
     fontSize: 14,
     lineHeight: 20,
-    color: "#333",
   },
   section: {
     padding: 16,
@@ -199,12 +309,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontFamily: "Oswald_700Bold",
     fontSize: 20,
-    marginBottom: 16,
-    color: "#333",
+    marginBottom: 12,
   },
   featuredCard: {
-    borderRadius: 8,
-    overflow: "hidden",
     elevation: 4,
   },
   cardTitle: {
@@ -216,8 +323,8 @@ const styles = StyleSheet.create({
   cardDescription: {
     fontFamily: "Roboto_400Regular",
     fontSize: 14,
-    color: "#666",
     marginBottom: 8,
+    lineHeight: 20,
   },
   cardDetails: {
     flexDirection: "row",
@@ -229,36 +336,111 @@ const styles = StyleSheet.create({
     color: "#6200ee",
     backgroundColor: "rgba(98, 0, 238, 0.1)",
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 2,
     borderRadius: 4,
     marginRight: 8,
   },
   actionButton: {
     marginTop: 8,
-    backgroundColor: "#ff6b00",
+    backgroundColor: "#6200ee",
   },
   divider: {
-    marginVertical: 8,
     height: 1,
     backgroundColor: "#e0e0e0",
+    marginVertical: 8,
+  },
+  statsSection: {
+    padding: 16,
+  },
+  statsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  statCard: {
+    backgroundColor: "white",
+    borderRadius: 8,
+    padding: 16,
+    elevation: 2,
+    flex: 1,
+    marginHorizontal: 4,
+    alignItems: "center",
+  },
+  statValue: {
+    fontFamily: "Oswald_700Bold",
+    fontSize: 24,
+    color: "#6200ee",
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontFamily: "Roboto_400Regular",
+    fontSize: 12,
+    textAlign: "center",
   },
   horizontalCard: {
-    width: 200,
-    marginRight: 16,
-    borderRadius: 8,
+    width: 160,
+    marginRight: 12,
+    elevation: 2,
   },
   horizontalCardImage: {
-    height: 120,
+    height: 100,
   },
   horizontalCardTitle: {
     fontFamily: "Oswald_700Bold",
-    fontSize: 16,
+    fontSize: 14,
     marginTop: 8,
     marginBottom: 4,
+  },
+  inspirationSection: {
+    padding: 16,
+    paddingTop: 0,
+  },
+  inspirationCard: {
+    backgroundColor: "#6200ee",
+  },
+  quoteText: {
+    fontFamily: "Roboto_400Regular",
+    fontSize: 16,
+    fontStyle: "italic",
+    color: "white",
+    lineHeight: 24,
+    marginBottom: 8,
+  },
+  quoteAuthor: {
+    fontFamily: "Roboto_500Medium",
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.8)",
+    textAlign: "right",
+  },
+  featuredQuoteContainer: {
+    marginTop: 12,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(98, 0, 238, 0.1)",
+  },
+  featuredQuoteText: {
+    fontFamily: "Roboto_400Regular",
+    fontSize: 14,
+    fontStyle: "italic",
+    color: "#6200ee",
+    lineHeight: 20,
+  },
+  featuredQuoteAuthor: {
+    fontFamily: "Roboto_500Medium",
+    fontSize: 12,
+    color: "#666",
+    textAlign: "right",
+    marginTop: 4,
+  },
+  horizontalQuoteText: {
+    fontFamily: "Roboto_400Regular",
+    fontSize: 12,
+    fontStyle: "italic",
+    color: "#6200ee",
+    marginTop: 8,
+    lineHeight: 16,
   },
   logoutContainer: {
     padding: 16,
     alignItems: "center",
-    marginBottom: 20,
   },
 });

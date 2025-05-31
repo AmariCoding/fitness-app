@@ -1,5 +1,6 @@
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { Tabs } from "expo-router";
 
 export default function TabsLayout() {
@@ -7,7 +8,7 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerStyle: { backgroundColor: "#f5f5f5" },
-        headerShadowVisible: false,
+        headerShown: false,
         tabBarStyle: {
           backgroundColor: "#f5f5f5",
           borderTopWidth: 0,
@@ -34,9 +35,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="my-trainer"
         options={{
-          title: "My Trainer",
+          title: "MindSet",
           tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="dumbbell" size={22} color={color} />
+            <MaterialCommunityIcons name="brain" size={24} color={color} />
           ),
         }}
       />
