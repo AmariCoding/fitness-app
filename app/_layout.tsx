@@ -1,5 +1,6 @@
 import { AuthProvider, useAuth } from "@/lib/auth-context";
 import { OnboardingProvider, useOnboarding } from "@/lib/onboarding-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { Stack, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 
@@ -53,16 +54,25 @@ function RouteGuard({ children }: { children: React.ReactNode }) {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <OnboardingProvider>
-        <RouteGuard>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="login" options={{ headerShown: false }} />
-            <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-          </Stack>
-        </RouteGuard>
-      </OnboardingProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <OnboardingProvider>
+          <RouteGuard>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="login" options={{ headerShown: false }} />
+              <Stack.Screen
+                name="onboarding"
+                options={{ headerShown: false }}
+              />
+              <Stack.Screen
+                name="workout-session"
+                options={{ headerShown: false }}
+              />
+            </Stack>
+          </RouteGuard>
+        </OnboardingProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

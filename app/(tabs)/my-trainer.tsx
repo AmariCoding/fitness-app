@@ -1,6 +1,7 @@
 import { useAuth } from "@/lib/auth-context";
 import { Oswald_700Bold, useFonts } from "@expo-google-fonts/oswald";
 import { Roboto_400Regular, Roboto_500Medium } from "@expo-google-fonts/roboto";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, Image, ScrollView, StyleSheet, View } from "react-native";
 import {
@@ -11,6 +12,7 @@ import {
   Text,
   TouchableRipple,
 } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 type Workout = {
   id: string;
@@ -231,6 +233,7 @@ const workouts: Workout[] = [
 
 export default function MyTrainerScreen() {
   const { user } = useAuth();
+  const router = useRouter();
   const [selectedWorkout, setSelectedWorkout] = useState<Workout | null>(null);
   const [activeCategory, setActiveCategory] = useState<"physical" | "mental">(
     "mental"
@@ -250,6 +253,15 @@ export default function MyTrainerScreen() {
     (workout) => workout.category === activeCategory
   );
 
+  const startWorkout = (workout: Workout) => {
+    router.push({
+      pathname: "/workout-session",
+      params: {
+        workout: JSON.stringify(workout),
+      },
+    });
+  };
+
   const renderWorkoutItem = ({ item }: { item: Workout }) => (
     <TouchableRipple onPress={() => setSelectedWorkout(item)}>
       <Card style={styles.workoutCard}>
@@ -266,7 +278,7 @@ export default function MyTrainerScreen() {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.heading}>MindSet Trainer</Text>
         <Text style={styles.subheading}>
@@ -387,9 +399,7 @@ export default function MyTrainerScreen() {
             <Button
               mode="contained"
               style={styles.startButton}
-              onPress={() =>
-                console.log(`Starting workout: ${selectedWorkout.title}`)
-              }
+              onPress={() => startWorkout(selectedWorkout)}
             >
               Start Workout
             </Button>
@@ -402,7 +412,7 @@ export default function MyTrainerScreen() {
           </Text>
         </View>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -412,7 +422,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f5f5",
   },
   header: {
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
     backgroundColor: "#6200ee",
   },
   heading: {
