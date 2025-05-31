@@ -1,5 +1,5 @@
 import { Account, Client, Databases, Storage } from "react-native-appwrite";
-import { getConfig, logConfig } from "./config";
+import { getConfig } from "./config";
 
 const APPWRITE_ENDPOINT = getConfig("APPWRITE_ENDPOINT");
 const APPWRITE_PROJECT_ID = getConfig("APPWRITE_PROJECT_ID");
@@ -18,10 +18,6 @@ export const account = new Account(client);
 export const databases = new Databases(client);
 
 export const storage = new Storage(client);
-
-if (__DEV__) {
-  logConfig();
-}
 
 export async function executeWithRetry<T>(
   operation: () => Promise<T>,
@@ -43,28 +39,5 @@ export async function executeWithRetry<T>(
     }
 
     throw error;
-  }
-}
-
-export async function checkAppWriteConnection() {
-  try {
-    await executeWithRetry(() => account.get());
-    console.log("AppWrite connection successful! User is authenticated.");
-    return { success: true, message: "Connected and authenticated" };
-  } catch (error: any) {
-    if (
-      error?.message?.includes("missing scope") ||
-      error?.message?.includes("general_unauthorized")
-    ) {
-      console.log("AppWrite connection successful! (Not authenticated)");
-      return { success: true, message: "Connected but not authenticated" };
-    }
-
-    console.error("AppWrite connection failed:", error);
-    return {
-      success: false,
-      message: `Connection failed: ${error?.message || "Unknown error"}`,
-      error,
-    };
   }
 }

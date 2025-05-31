@@ -4,8 +4,15 @@ const DEFAULT_CONFIG = {
 };
 
 export function getConfig(key: keyof typeof DEFAULT_CONFIG): string {
-  const envKey = `EXPO_PUBLIC_${key}`;
-  return process.env[envKey] || DEFAULT_CONFIG[key];
+  let envValue: string | undefined;
+
+  if (key === "APPWRITE_ENDPOINT") {
+    envValue = process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT;
+  } else if (key === "APPWRITE_PROJECT_ID") {
+    envValue = process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID;
+  }
+
+  return envValue || DEFAULT_CONFIG[key];
 }
 
 export function validateConfig(): { valid: boolean; missing: string[] } {
@@ -34,14 +41,4 @@ export function getAllConfig() {
     APPWRITE_ENDPOINT: getConfig("APPWRITE_ENDPOINT"),
     APPWRITE_PROJECT_ID: getConfig("APPWRITE_PROJECT_ID"),
   };
-}
-
-export function logConfig() {
-  if (__DEV__) {
-    console.log("App Configuration:", getAllConfig());
-    const validation = validateConfig();
-    if (!validation.valid) {
-      console.warn("⚠️ Missing or invalid configuration:", validation.missing);
-    }
-  }
 }
