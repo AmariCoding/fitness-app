@@ -7,8 +7,8 @@ import {
 } from "@expo-google-fonts/oswald";
 import { Roboto_400Regular, Roboto_500Medium } from "@expo-google-fonts/roboto";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   ImageBackground,
   KeyboardAvoidingView,
@@ -23,10 +23,12 @@ export default function MindsetLoginScreen() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>("");
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isPasswordVisible, setIsPasswordVisible] = useState<boolean>(false);
   const { theme } = useAppTheme();
   const router = useRouter();
   const { signUp, signIn } = useAuth();
+  const params = useLocalSearchParams();
 
   const [fontsLoaded] = useFonts({
     Oswald_700Bold,
@@ -34,6 +36,13 @@ export default function MindsetLoginScreen() {
     Roboto_400Regular,
     Roboto_500Medium,
   });
+
+  useEffect(() => {
+    if (params.message) {
+      setSuccessMessage(params.message as string);
+      setTimeout(() => setSuccessMessage(null), 5000);
+    }
+  }, [params.message]);
 
   if (!fontsLoaded) {
     return null;
@@ -58,14 +67,12 @@ export default function MindsetLoginScreen() {
         setError(error);
         return;
       }
-      // Onboarding will be handled by RouteGuard component
     } else {
       const error = await signIn(email, password);
       if (error) {
         setError(error);
         return;
       }
-      // Onboarding check will be handled by RouteGuard component
     }
   };
 
@@ -79,7 +86,6 @@ export default function MindsetLoginScreen() {
 
   const renderBackground = () => {
     try {
-      // Try to use the image background if it exists
       return (
         <ImageBackground
           source={require("../assets/images/fitness-bg.jpg")}
@@ -89,7 +95,6 @@ export default function MindsetLoginScreen() {
         </ImageBackground>
       );
     } catch (error) {
-      // Fallback to gradient that matches the app theme
       return (
         <LinearGradient
           colors={[
@@ -159,6 +164,10 @@ export default function MindsetLoginScreen() {
 
             {error && <Text style={styles.errorText}>{error}</Text>}
 
+            {successMessage && (
+              <Text style={styles.successText}>{successMessage}</Text>
+            )}
+
             <Button
               mode="contained"
               style={styles.button}
@@ -170,6 +179,18 @@ export default function MindsetLoginScreen() {
             >
               {isSignUp ? "SIGN UP" : "SIGN IN"}
             </Button>
+
+            {!isSignUp && (
+              <Button
+                mode="text"
+                onPress={() => router.push("/forgot-password")}
+                style={styles.forgotPasswordButton}
+                textColor={theme.colors.primary}
+                labelStyle={styles.forgotPasswordText}
+              >
+                Forgot Password?
+              </Button>
+            )}
 
             <Button
               mode="text"
@@ -274,6 +295,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontFamily: "Roboto_400Regular",
   },
+  successText: {
+    color: "#4CAF50",
+    marginBottom: 15,
+    textAlign: "center",
+    fontFamily: "Roboto_400Regular",
+  },
   button: {
     marginTop: 25,
     borderRadius: 30,
@@ -291,6 +318,12 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   switchButtonText: {
+    fontFamily: "Roboto_500Medium",
+  },
+  forgotPasswordButton: {
+    marginTop: 15,
+  },
+  forgotPasswordText: {
     fontFamily: "Roboto_500Medium",
   },
 });

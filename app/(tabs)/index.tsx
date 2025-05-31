@@ -1,6 +1,5 @@
 import { useAuth } from "@/lib/auth-context";
 import { getWorkoutStats } from "@/lib/database";
-import { useOnboarding } from "@/lib/onboarding-context";
 import { useAppTheme } from "@/lib/theme-context";
 import { Oswald_700Bold, useFonts } from "@expo-google-fonts/oswald";
 import { Roboto_400Regular, Roboto_500Medium } from "@expo-google-fonts/roboto";
@@ -95,9 +94,7 @@ const sampleWorkouts: Workout[] = [
 
 export default function Index() {
   const { user, signOut } = useAuth();
-  const { isFirstLogin } = useOnboarding();
   const { theme } = useAppTheme();
-  const [showWelcomeCard, setShowWelcomeCard] = useState(true);
   const [workoutStats, setWorkoutStats] = useState({
     totalWorkouts: 0,
     totalMinutes: 0,
@@ -116,9 +113,7 @@ export default function Index() {
   useFocusEffect(
     useCallback(() => {
       loadWorkoutStats();
-      return () => {
-        // This will run when the screen is unfocused
-      };
+      return () => {};
     }, [user])
   );
 
@@ -150,16 +145,11 @@ export default function Index() {
 
   const styles = createStyles(theme);
 
-  const dismissWelcomeCard = () => {
-    setShowWelcomeCard(false);
-  };
-
   const navigateToTrainer = () => {
     router.push("/(tabs)/my-trainer");
   };
 
   const startFeaturedWorkout = () => {
-    // Create the featured workout object that matches the UI
     const featuredWorkout = {
       id: "featured-decision",
       title: "Quick Decision Training",
@@ -197,36 +187,6 @@ export default function Index() {
           <Text style={styles.greeting}>Hello, {user?.name || "Athlete"}</Text>
           <Text style={styles.subheading}>Train your brain like your body</Text>
         </View>
-
-        {showWelcomeCard && (
-          <Card
-            style={[styles.welcomeCard, { backgroundColor: theme.colors.card }]}
-          >
-            <Card.Content>
-              <Text style={[styles.welcomeTitle, { color: theme.colors.text }]}>
-                Welcome to MINDSET!
-              </Text>
-              <Text
-                style={[
-                  styles.welcomeText,
-                  { color: theme.colors.textSecondary },
-                ]}
-              >
-                You&apos;ve completed the onboarding process. Explore the app to
-                discover mental workouts, track your brain training progress,
-                and enhance your athletic performance.
-              </Text>
-            </Card.Content>
-            <Card.Actions>
-              <Button
-                onPress={dismissWelcomeCard}
-                textColor={theme.colors.primary}
-              >
-                Got it
-              </Button>
-            </Card.Actions>
-          </Card>
-        )}
 
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: theme.colors.text }]}>
@@ -471,20 +431,6 @@ const createStyles = (theme: any) =>
       fontFamily: "Roboto_400Regular",
       fontSize: 16,
       color: "rgba(255, 255, 255, 0.8)",
-    },
-    welcomeCard: {
-      margin: 16,
-      elevation: 4,
-    },
-    welcomeTitle: {
-      fontFamily: "Oswald_700Bold",
-      fontSize: 20,
-      marginBottom: 8,
-    },
-    welcomeText: {
-      fontFamily: "Roboto_400Regular",
-      fontSize: 14,
-      lineHeight: 20,
     },
     section: {
       padding: 16,

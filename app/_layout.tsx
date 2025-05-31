@@ -8,8 +8,8 @@ import { PaperProvider } from "react-native-paper";
 
 function RouteGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { user, isLoadingUser } = useAuth();
-  const { isFirstLogin, isLoading: isLoadingOnboarding } = useOnboarding();
+  const { user, isLoadingUser, isNewUser, clearNewUserFlag } = useAuth();
+  const { isLoading: isLoadingOnboarding } = useOnboarding();
   const segments = useSegments();
 
   useEffect(() => {
@@ -18,28 +18,29 @@ function RouteGuard({ children }: { children: React.ReactNode }) {
       return; // Don't navigate while still loading
     }
 
-    const inAuthGroup = segments[0] === "login";
+    const inAuthGroup =
+      segments[0] === "login" || segments[0] === "forgot-password";
     const inOnboardingGroup = segments[0] === "onboarding";
 
-    // Logic for navigation based on auth state and onboarding status
+    // Logic for navigation based on auth state and new user status
     if (!user && !inAuthGroup) {
       // Not logged in, redirect to login
       console.log("Redirecting to login - no user");
       router.replace("/login");
     } else if (user && inAuthGroup) {
-      // Logged in and on login screen, check if first login
-      if (isFirstLogin) {
-        // First time login, show onboarding
-        console.log("Redirecting to onboarding - first login");
+      // Logged in and on login/forgot-password screen, check if this is a new user
+      if (isNewUser) {
+        // New user from sign up, show onboarding
+        console.log("Redirecting to onboarding - new user");
         router.replace("/onboarding");
       } else {
-        // Not first login, go to main app
-        console.log("Redirecting to home - returning user");
+        // Existing user signing in, go to main app
+        console.log("Redirecting to home - existing user");
         router.replace("/");
       }
-    } else if (user && !isFirstLogin && inOnboardingGroup) {
-      // User has completed onboarding before, skip it
-      console.log("Skipping onboarding - already completed");
+    } else if (user && !isNewUser && inOnboardingGroup) {
+      // Existing user somehow on onboarding, skip it
+      console.log("Skipping onboarding - existing user");
       router.replace("/");
     }
   }, [
@@ -47,8 +48,9 @@ function RouteGuard({ children }: { children: React.ReactNode }) {
     segments,
     router,
     isLoadingUser,
-    isFirstLogin,
+    isNewUser,
     isLoadingOnboarding,
+    clearNewUserFlag,
   ]);
 
   return <>{children}</>;
@@ -82,6 +84,10 @@ function AppContent() {
                 <Stack.Screen name="login" options={{ headerShown: false }} />
                 <Stack.Screen
                   name="onboarding"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen
+                  name="forgot-password"
                   options={{ headerShown: false }}
                 />
                 <Stack.Screen

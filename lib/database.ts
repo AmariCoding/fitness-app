@@ -1,16 +1,13 @@
 import { ID, Query } from "react-native-appwrite";
 import { client, databases, executeWithRetry, storage } from "./appwrite";
 
-// Database and Collection IDs - you'll need to create these in Appwrite Console
 export const DATABASE_ID = "fit-app-db";
 export const WORKOUT_PROGRESS_COLLECTION_ID = "workout-progress";
 export const USER_STATS_COLLECTION_ID = "user-stats";
 export const PROGRESS_PHOTOS_COLLECTION_ID = "progress-photos";
 
-// Storage Bucket ID - you'll need to create this in Appwrite Console
 export const PROGRESS_PHOTOS_BUCKET_ID = "progress-photos-bucket";
 
-// Types for our database models
 export interface WorkoutProgress {
   $id?: string;
   userId: string;
@@ -37,7 +34,6 @@ export interface UserStats {
   updatedAt: string;
 }
 
-// Add ProgressPhoto type
 export type ProgressPhoto = {
   $id: string;
   userId: string;
@@ -50,7 +46,6 @@ export type ProgressPhoto = {
   uploadedAt: string;
 };
 
-// Workout Progress Functions
 export async function saveWorkoutProgress(
   progressData: Omit<WorkoutProgress, "$id">
 ): Promise<WorkoutProgress> {
@@ -64,7 +59,6 @@ export async function saveWorkoutProgress(
       )
     );
 
-    // Update user stats after saving progress
     await updateUserStats(progressData.userId, progressData);
 
     return result as unknown as WorkoutProgress;
@@ -104,7 +98,6 @@ export async function getUserStats(userId: string): Promise<UserStats | null> {
       return result.documents[0] as unknown as UserStats;
     }
 
-    // Create initial stats if none exist
     return await createInitialUserStats(userId);
   } catch (error) {
     console.error("Error fetching user stats:", error);
@@ -207,11 +200,9 @@ export async function updateUserStats(
     );
   } catch (error) {
     console.error("Error updating user stats:", error);
-    // Don't throw error to avoid breaking the workout completion flow
   }
 }
 
-// Get workout stats for dashboard
 export async function getWorkoutStats(userId: string) {
   try {
     const [userStats, recentWorkouts] = await Promise.all([

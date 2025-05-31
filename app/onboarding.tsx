@@ -1,3 +1,4 @@
+import { useAuth } from "@/lib/auth-context";
 import { useOnboarding } from "@/lib/onboarding-context";
 import { Oswald_700Bold, useFonts } from "@expo-google-fonts/oswald";
 import { Roboto_400Regular, Roboto_500Medium } from "@expo-google-fonts/roboto";
@@ -49,6 +50,7 @@ const slides: Slide[] = [
 const Onboarding = () => {
   const router = useRouter();
   const { setOnboardingComplete } = useOnboarding();
+  const { clearNewUserFlag } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollX = useRef(new Animated.Value(0)).current;
   const slidesRef = useRef<any>(null);
@@ -72,6 +74,7 @@ const Onboarding = () => {
       slidesRef.current.scrollToIndex({ index: currentIndex + 1 });
     } else {
       await setOnboardingComplete();
+      clearNewUserFlag();
       router.replace("/");
     }
   };
@@ -141,6 +144,7 @@ const Onboarding = () => {
         style={styles.skipButton}
         onPress={async () => {
           await setOnboardingComplete();
+          clearNewUserFlag();
           router.replace("/");
         }}
       >

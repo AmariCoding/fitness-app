@@ -48,7 +48,6 @@ export default function AccountScreen() {
   }
 
   const resetOnboarding = async () => {
-    // This is a dev function to reset onboarding status
     await setOnboardingComplete();
   };
 

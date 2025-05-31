@@ -36,9 +36,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
-const imageSize = (width - 48) / 2; // 2 columns with padding
+const imageSize = (width - 48) / 2;
 
-// Custom Image component with error handling and debug
 const ProgressImage = ({
   uri,
   style,
@@ -51,10 +50,8 @@ const ProgressImage = ({
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
-    // Debug: Log URL for inspection
     console.log(`📷 Loading image for ${fileId} with URL:`, uri);
 
-    // Test file accessibility if fileId exists (skip for preview images)
     if (fileId) {
       testFileAccess(fileId)
         .then((result: any) => {
@@ -165,7 +162,6 @@ export default function ProgressScreen() {
       setLoading(true);
       const userPhotos = await getUserProgressPhotos(user.$id);
 
-      // Debug: Log the fetched photos and their URLs
       console.log(
         `📷 Loaded ${userPhotos.length} progress photos for user ${user.$id}`
       );
@@ -342,7 +338,6 @@ export default function ProgressScreen() {
     return new Date(dateString).toLocaleDateString();
   };
 
-  // Debug function to test URLs manually
   const testAllPhotoUrls = async () => {
     if (photos.length === 0) {
       Alert.alert("No Photos", "No photos to test");
@@ -361,7 +356,6 @@ export default function ProgressScreen() {
                 const result = await testFileAccess(photo.fileId);
                 console.log(`🧪 Test result for ${photo.title}:`, result);
 
-                // Try to fetch the URL directly
                 try {
                   const response = await fetch(photo.fileUrl, {
                     method: "HEAD",
@@ -393,12 +387,7 @@ export default function ProgressScreen() {
 
   const renderPhotoItem = ({ item }: { item: ProgressPhoto }) => (
     <Card style={[styles.photoCard, { backgroundColor: theme.colors.card }]}>
-      <TouchableOpacity
-        onPress={() => {
-          // Could implement full screen view here
-        }}
-        activeOpacity={0.8}
-      >
+      <TouchableOpacity onPress={() => {}} activeOpacity={0.8}>
         <View style={styles.imageContainer}>
           <ProgressImage
             uri={item.fileUrl}
@@ -662,7 +651,7 @@ export default function ProgressScreen() {
                 error={!title.trim() && title.length > 0}
               />
               {!title.trim() && title.length > 0 && (
-                <Text style={[styles.errorText, { color: theme.colors.error }]}>
+                <Text style={[{ color: theme.colors.error }]}>
                   Title is required
                 </Text>
               )}

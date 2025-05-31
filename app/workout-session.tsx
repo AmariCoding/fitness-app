@@ -56,20 +56,16 @@ export default function WorkoutSessionScreen() {
     Roboto_500Medium,
   });
 
-  // Parse workout data from params
   const workout: Workout = params.workout
     ? JSON.parse(params.workout as string)
     : null;
 
-  // Convert simple exercise strings to detailed exercise objects
   const detailedExercises: Exercise[] =
     workout?.exercises?.map((exerciseName, index) => {
-      // Enhanced exercise details based on workout category and exercise name
       const getExerciseDetails = (name: string, category: string): Exercise => {
         const baseExercise = { name };
 
         if (category === "mental") {
-          // Mental exercises with time-based durations
           if (name.toLowerCase().includes("meditation")) {
             return {
               ...baseExercise,
@@ -192,7 +188,6 @@ export default function WorkoutSessionScreen() {
             };
           }
         } else if (category === "physical") {
-          // Physical exercises with rep-based or time-based structure
           if (name.toLowerCase().includes("burpees")) {
             return {
               ...baseExercise,
@@ -332,7 +327,6 @@ export default function WorkoutSessionScreen() {
           }
         }
 
-        // Default exercise structure
         return {
           ...baseExercise,
           duration: "2-3 minutes",
