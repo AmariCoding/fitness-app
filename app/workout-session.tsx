@@ -1,5 +1,6 @@
 import { useAuth } from "@/lib/auth-context";
 import { saveWorkoutProgress } from "@/lib/database";
+import { useAppTheme } from "@/lib/theme-context";
 import { Oswald_700Bold, useFonts } from "@expo-google-fonts/oswald";
 import { Roboto_400Regular, Roboto_500Medium } from "@expo-google-fonts/roboto";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -40,6 +41,7 @@ type Workout = {
 
 export default function WorkoutSessionScreen() {
   const { user } = useAuth();
+  const { theme } = useAppTheme();
   const router = useRouter();
   const params = useLocalSearchParams();
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
@@ -364,6 +366,8 @@ export default function WorkoutSessionScreen() {
     return null;
   }
 
+  const styles = createStyles(theme);
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -429,7 +433,9 @@ export default function WorkoutSessionScreen() {
 
   if (sessionCompleted) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
         <View style={styles.header}>
           <Text style={styles.heading}>Session Complete!</Text>
           <Text style={styles.subheading}>
@@ -438,30 +444,81 @@ export default function WorkoutSessionScreen() {
         </View>
 
         <ScrollView style={styles.content}>
-          <Card style={styles.completionCard}>
+          <Card
+            style={[
+              styles.completionCard,
+              { backgroundColor: theme.colors.card },
+            ]}
+          >
             <Card.Content>
-              <Text style={styles.completionTitle}>🎉 Workout Completed</Text>
-              <Text style={styles.completionSubtitle}>{workout.title}</Text>
+              <Text
+                style={[
+                  styles.completionTitle,
+                  { color: theme.colors.primary },
+                ]}
+              >
+                🎉 Workout Completed
+              </Text>
+              <Text
+                style={[
+                  styles.completionSubtitle,
+                  { color: theme.colors.text },
+                ]}
+              >
+                {workout.title}
+              </Text>
 
               <View style={styles.statsContainer}>
                 <View style={styles.statItem}>
-                  <Text style={styles.statValue}>{formatTime(timer)}</Text>
-                  <Text style={styles.statLabel}>Total Time</Text>
+                  <Text
+                    style={[styles.statValue, { color: theme.colors.primary }]}
+                  >
+                    {formatTime(timer)}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.statLabel,
+                      { color: theme.colors.textSecondary },
+                    ]}
+                  >
+                    Total Time
+                  </Text>
                 </View>
                 <View style={styles.statItem}>
-                  <Text style={styles.statValue}>
+                  <Text
+                    style={[styles.statValue, { color: theme.colors.primary }]}
+                  >
                     {detailedExercises.length}
                   </Text>
-                  <Text style={styles.statLabel}>Exercises</Text>
+                  <Text
+                    style={[
+                      styles.statLabel,
+                      { color: theme.colors.textSecondary },
+                    ]}
+                  >
+                    Exercises
+                  </Text>
                 </View>
               </View>
 
               {workout.quote && (
-                <View style={styles.quoteContainer}>
-                  <Text style={styles.quoteText}>
+                <View
+                  style={[
+                    styles.quoteContainer,
+                    { backgroundColor: `${theme.colors.primary}15` },
+                  ]}
+                >
+                  <Text
+                    style={[styles.quoteText, { color: theme.colors.text }]}
+                  >
                     &quot;{workout.quote}&quot;
                   </Text>
-                  <Text style={styles.quoteAuthor}>
+                  <Text
+                    style={[
+                      styles.quoteAuthor,
+                      { color: theme.colors.primary },
+                    ]}
+                  >
                     - {workout.quoteAuthor}
                   </Text>
                 </View>
@@ -471,7 +528,10 @@ export default function WorkoutSessionScreen() {
 
           <Button
             mode="contained"
-            style={styles.actionButton}
+            style={[
+              styles.actionButton,
+              { backgroundColor: theme.colors.primary },
+            ]}
             onPress={exitSession}
           >
             Return to Workouts
@@ -483,7 +543,9 @@ export default function WorkoutSessionScreen() {
 
   if (!isSessionStarted) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView
+        style={[styles.container, { backgroundColor: theme.colors.background }]}
+      >
         <View style={styles.header}>
           <IconButton
             icon="arrow-left"
@@ -497,10 +559,22 @@ export default function WorkoutSessionScreen() {
         </View>
 
         <ScrollView style={styles.content}>
-          <Card style={styles.workoutPreviewCard}>
+          <Card
+            style={[
+              styles.workoutPreviewCard,
+              { backgroundColor: theme.colors.card },
+            ]}
+          >
             <Card.Content>
-              <Text style={styles.workoutTitle}>{workout.title}</Text>
-              <Text style={styles.workoutDescription}>
+              <Text style={[styles.workoutTitle, { color: theme.colors.text }]}>
+                {workout.title}
+              </Text>
+              <Text
+                style={[
+                  styles.workoutDescription,
+                  { color: theme.colors.textSecondary },
+                ]}
+              >
                 {workout.description}
               </Text>
 
@@ -512,19 +586,51 @@ export default function WorkoutSessionScreen() {
                 </Text>
               </View>
 
-              <Text style={styles.exercisesTitle}>Today&apos;s Exercises:</Text>
+              <Text
+                style={[styles.exercisesTitle, { color: theme.colors.text }]}
+              >
+                Today&apos;s Exercises:
+              </Text>
               {detailedExercises.map((exercise, index) => (
-                <View key={index} style={styles.exercisePreviewItem}>
-                  <Text style={styles.exerciseNumber}>{index + 1}</Text>
+                <View
+                  key={index}
+                  style={[
+                    styles.exercisePreviewItem,
+                    { backgroundColor: `${theme.colors.primary}10` },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.exerciseNumber,
+                      { color: theme.colors.primary },
+                    ]}
+                  >
+                    {index + 1}
+                  </Text>
                   <View style={styles.exercisePreviewContent}>
-                    <Text style={styles.exercisePreviewName}>
+                    <Text
+                      style={[
+                        styles.exercisePreviewName,
+                        { color: theme.colors.text },
+                      ]}
+                    >
                       {exercise.name}
                     </Text>
-                    <Text style={styles.exercisePreviewMeta}>
+                    <Text
+                      style={[
+                        styles.exercisePreviewMeta,
+                        { color: theme.colors.textSecondary },
+                      ]}
+                    >
                       {exercise.duration || exercise.reps}
                     </Text>
                     {exercise.quote && (
-                      <Text style={styles.exercisePreviewQuote}>
+                      <Text
+                        style={[
+                          styles.exercisePreviewQuote,
+                          { color: theme.colors.textSecondary },
+                        ]}
+                      >
                         &quot;
                         {exercise.quote.length > 50
                           ? exercise.quote.substring(0, 50) + "..."
@@ -540,7 +646,10 @@ export default function WorkoutSessionScreen() {
 
           <Button
             mode="contained"
-            style={styles.startButton}
+            style={[
+              styles.startButton,
+              { backgroundColor: theme.colors.primary },
+            ]}
             onPress={startSession}
           >
             Start Workout
@@ -551,7 +660,9 @@ export default function WorkoutSessionScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <View style={styles.header}>
         <IconButton
           icon="close"
@@ -570,37 +681,94 @@ export default function WorkoutSessionScreen() {
 
       <ProgressBar
         progress={progress}
-        color="#6200ee"
-        style={styles.progressBar}
+        color={theme.colors.primary}
+        style={[
+          styles.progressBar,
+          { backgroundColor: `${theme.colors.primary}30` },
+        ]}
       />
 
       <ScrollView style={styles.content}>
-        <Card style={styles.exerciseCard}>
+        <Card
+          style={[styles.exerciseCard, { backgroundColor: theme.colors.card }]}
+        >
           <Card.Content>
-            <Text style={styles.exerciseTitle}>{currentExercise.name}</Text>
-            <Text style={styles.exerciseMeta}>
+            <Text
+              style={[styles.exerciseTitle, { color: theme.colors.primary }]}
+            >
+              {currentExercise.name}
+            </Text>
+            <Text
+              style={[
+                styles.exerciseMeta,
+                { color: theme.colors.textSecondary },
+              ]}
+            >
               {currentExercise.duration || currentExercise.reps}
             </Text>
-            <Text style={styles.exerciseDescription}>
+            <Text
+              style={[styles.exerciseDescription, { color: theme.colors.text }]}
+            >
               {currentExercise.description}
             </Text>
 
-            <View style={styles.instructionsContainer}>
-              <Text style={styles.instructionsTitle}>Instructions:</Text>
+            <View
+              style={[
+                styles.instructionsContainer,
+                { backgroundColor: `${theme.colors.primary}10` },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.instructionsTitle,
+                  { color: theme.colors.primary },
+                ]}
+              >
+                Instructions:
+              </Text>
               {currentExercise.instructions?.map((instruction, index) => (
                 <View key={index} style={styles.instructionItem}>
-                  <Text style={styles.instructionNumber}>{index + 1}</Text>
-                  <Text style={styles.instructionText}>{instruction}</Text>
+                  <Text
+                    style={[
+                      styles.instructionNumber,
+                      { color: theme.colors.primary },
+                    ]}
+                  >
+                    {index + 1}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.instructionText,
+                      { color: theme.colors.text },
+                    ]}
+                  >
+                    {instruction}
+                  </Text>
                 </View>
               ))}
             </View>
 
             {currentExercise.quote && (
-              <View style={styles.exerciseQuoteContainer}>
-                <Text style={styles.exerciseQuoteText}>
+              <View
+                style={[
+                  styles.exerciseQuoteContainer,
+                  { backgroundColor: `${theme.colors.primary}10` },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.exerciseQuoteText,
+                    { color: theme.colors.text },
+                  ]}
+                >
                   &quot;{currentExercise.quote}&quot;
                 </Text>
-                <Text style={styles.exerciseQuoteAuthor}>
+                <Text
+                  style={[
+                    styles.exerciseQuoteAuthor,
+                    { color: theme.colors.primary },
+                  ]}
+                >
                   - {currentExercise.quoteAuthor}
                 </Text>
               </View>
@@ -614,7 +782,8 @@ export default function WorkoutSessionScreen() {
           mode="outlined"
           onPress={previousExercise}
           disabled={currentExerciseIndex === 0}
-          style={styles.navButton}
+          style={[styles.navButton, { borderColor: theme.colors.border }]}
+          textColor={theme.colors.text}
         >
           Previous
         </Button>
@@ -622,7 +791,7 @@ export default function WorkoutSessionScreen() {
         <Button
           mode="contained"
           onPress={nextExercise}
-          style={styles.navButton}
+          style={[styles.navButton, { backgroundColor: theme.colors.primary }]}
         >
           {currentExerciseIndex === detailedExercises.length - 1
             ? "Complete"
@@ -633,274 +802,252 @@ export default function WorkoutSessionScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-  },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: "#6200ee",
-  },
-  backButton: {
-    position: "absolute",
-    top: 16,
-    left: 10,
-    zIndex: 1,
-  },
-  headerContent: {
-    alignItems: "center",
-    marginTop: 10,
-  },
-  heading: {
-    fontFamily: "Oswald_700Bold",
-    fontSize: 28,
-    color: "white",
-    textAlign: "center",
-  },
-  subheading: {
-    fontFamily: "Roboto_400Regular",
-    fontSize: 16,
-    color: "rgba(255, 255, 255, 0.8)",
-    textAlign: "center",
-    marginTop: 4,
-  },
-  timerText: {
-    fontFamily: "Oswald_700Bold",
-    fontSize: 36,
-    color: "white",
-  },
-  progressText: {
-    fontFamily: "Roboto_400Regular",
-    fontSize: 14,
-    color: "rgba(255, 255, 255, 0.8)",
-    marginTop: 4,
-  },
-  progressBar: {
-    height: 4,
-  },
-  content: {
-    flex: 1,
-    padding: 16,
-  },
-  workoutPreviewCard: {
-    marginBottom: 20,
-    elevation: 4,
-  },
-  workoutTitle: {
-    fontFamily: "Oswald_700Bold",
-    fontSize: 24,
-    marginBottom: 8,
-  },
-  workoutDescription: {
-    fontFamily: "Roboto_400Regular",
-    fontSize: 16,
-    lineHeight: 24,
-    marginBottom: 16,
-    color: "#666",
-  },
-  workoutMeta: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 20,
-  },
-  metaItem: {
-    fontFamily: "Roboto_500Medium",
-    fontSize: 12,
-    color: "#6200ee",
-    backgroundColor: "rgba(98, 0, 238, 0.1)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    marginRight: 8,
-    marginBottom: 4,
-  },
-  exercisesTitle: {
-    fontFamily: "Roboto_500Medium",
-    fontSize: 18,
-    marginBottom: 12,
-  },
-  exercisePreviewItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: "rgba(98, 0, 238, 0.05)",
-    borderRadius: 8,
-  },
-  exerciseNumber: {
-    fontFamily: "Oswald_700Bold",
-    fontSize: 16,
-    color: "#6200ee",
-    marginRight: 12,
-    minWidth: 20,
-  },
-  exercisePreviewContent: {
-    flex: 1,
-  },
-  exercisePreviewName: {
-    fontFamily: "Roboto_500Medium",
-    fontSize: 14,
-    marginBottom: 2,
-  },
-  exercisePreviewMeta: {
-    fontFamily: "Roboto_400Regular",
-    fontSize: 12,
-    color: "#666",
-  },
-  exercisePreviewQuote: {
-    fontFamily: "Roboto_400Regular",
-    fontStyle: "italic",
-    fontSize: 12,
-    color: "#666",
-  },
-  exerciseCard: {
-    elevation: 4,
-  },
-  exerciseTitle: {
-    fontFamily: "Oswald_700Bold",
-    fontSize: 28,
-    textAlign: "center",
-    marginBottom: 8,
-    color: "#6200ee",
-  },
-  exerciseMeta: {
-    fontFamily: "Roboto_500Medium",
-    fontSize: 16,
-    textAlign: "center",
-    color: "#666",
-    marginBottom: 16,
-  },
-  exerciseDescription: {
-    fontFamily: "Roboto_400Regular",
-    fontSize: 16,
-    lineHeight: 24,
-    textAlign: "center",
-    marginBottom: 24,
-    color: "#333",
-  },
-  instructionsContainer: {
-    backgroundColor: "rgba(98, 0, 238, 0.05)",
-    padding: 16,
-    borderRadius: 8,
-  },
-  instructionsTitle: {
-    fontFamily: "Roboto_500Medium",
-    fontSize: 18,
-    marginBottom: 12,
-    color: "#6200ee",
-  },
-  instructionItem: {
-    flexDirection: "row",
-    marginBottom: 8,
-  },
-  instructionNumber: {
-    fontFamily: "Roboto_500Medium",
-    fontSize: 14,
-    color: "#6200ee",
-    marginRight: 8,
-    minWidth: 20,
-  },
-  instructionText: {
-    fontFamily: "Roboto_400Regular",
-    fontSize: 14,
-    lineHeight: 20,
-    flex: 1,
-  },
-  navigationContainer: {
-    flexDirection: "row",
-    padding: 16,
-    paddingBottom: 32,
-    justifyContent: "space-between",
-  },
-  navButton: {
-    flex: 0.45,
-  },
-  startButton: {
-    backgroundColor: "#6200ee",
-    marginTop: 20,
-  },
-  actionButton: {
-    backgroundColor: "#6200ee",
-    marginTop: 20,
-  },
-  completionCard: {
-    elevation: 4,
-    marginBottom: 20,
-  },
-  completionTitle: {
-    fontFamily: "Oswald_700Bold",
-    fontSize: 28,
-    textAlign: "center",
-    marginBottom: 8,
-    color: "#6200ee",
-  },
-  completionSubtitle: {
-    fontFamily: "Roboto_500Medium",
-    fontSize: 18,
-    textAlign: "center",
-    marginBottom: 24,
-    color: "#333",
-  },
-  statsContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    marginBottom: 24,
-  },
-  statItem: {
-    alignItems: "center",
-  },
-  statValue: {
-    fontFamily: "Oswald_700Bold",
-    fontSize: 24,
-    color: "#6200ee",
-  },
-  statLabel: {
-    fontFamily: "Roboto_400Regular",
-    fontSize: 14,
-    color: "#666",
-    marginTop: 4,
-  },
-  quoteContainer: {
-    backgroundColor: "rgba(98, 0, 238, 0.05)",
-    padding: 16,
-    borderRadius: 8,
-  },
-  quoteText: {
-    fontFamily: "Roboto_400Regular",
-    fontStyle: "italic",
-    fontSize: 16,
-    lineHeight: 24,
-    textAlign: "center",
-    marginBottom: 8,
-  },
-  quoteAuthor: {
-    fontFamily: "Roboto_500Medium",
-    fontSize: 14,
-    color: "#6200ee",
-    textAlign: "center",
-  },
-  exerciseQuoteContainer: {
-    backgroundColor: "rgba(98, 0, 238, 0.05)",
-    padding: 16,
-    borderRadius: 8,
-    marginTop: 16,
-  },
-  exerciseQuoteText: {
-    fontFamily: "Roboto_400Regular",
-    fontStyle: "italic",
-    fontSize: 16,
-    lineHeight: 24,
-    textAlign: "center",
-    marginBottom: 8,
-    color: "#333",
-  },
-  exerciseQuoteAuthor: {
-    fontFamily: "Roboto_500Medium",
-    fontSize: 14,
-    color: "#6200ee",
-    textAlign: "center",
-  },
-});
+const createStyles = (theme: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    header: {
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      backgroundColor: theme.colors.primary,
+    },
+    backButton: {
+      position: "absolute",
+      top: 16,
+      left: 10,
+      zIndex: 1,
+    },
+    headerContent: {
+      alignItems: "center",
+      marginTop: 10,
+    },
+    heading: {
+      fontFamily: "Oswald_700Bold",
+      fontSize: 28,
+      color: "white",
+      textAlign: "center",
+    },
+    subheading: {
+      fontFamily: "Roboto_400Regular",
+      fontSize: 16,
+      color: "rgba(255, 255, 255, 0.8)",
+      textAlign: "center",
+      marginTop: 4,
+    },
+    timerText: {
+      fontFamily: "Oswald_700Bold",
+      fontSize: 36,
+      color: "white",
+    },
+    progressText: {
+      fontFamily: "Roboto_400Regular",
+      fontSize: 14,
+      color: "rgba(255, 255, 255, 0.8)",
+      marginTop: 4,
+    },
+    progressBar: {
+      height: 4,
+    },
+    content: {
+      flex: 1,
+      padding: 16,
+    },
+    workoutPreviewCard: {
+      marginBottom: 20,
+      elevation: 4,
+    },
+    workoutTitle: {
+      fontFamily: "Oswald_700Bold",
+      fontSize: 24,
+      marginBottom: 8,
+    },
+    workoutDescription: {
+      fontFamily: "Roboto_400Regular",
+      fontSize: 16,
+      lineHeight: 24,
+      marginBottom: 16,
+    },
+    workoutMeta: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      marginBottom: 20,
+    },
+    metaItem: {
+      fontFamily: "Roboto_500Medium",
+      fontSize: 12,
+      color: theme.colors.primary,
+      backgroundColor: `${theme.colors.primary}15`,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 4,
+      marginRight: 8,
+      marginBottom: 4,
+    },
+    exercisesTitle: {
+      fontFamily: "Roboto_500Medium",
+      fontSize: 18,
+      marginBottom: 12,
+    },
+    exercisePreviewItem: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 8,
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      borderRadius: 8,
+    },
+    exerciseNumber: {
+      fontFamily: "Oswald_700Bold",
+      fontSize: 16,
+      marginRight: 12,
+      minWidth: 20,
+    },
+    exercisePreviewContent: {
+      flex: 1,
+    },
+    exercisePreviewName: {
+      fontFamily: "Roboto_500Medium",
+      fontSize: 14,
+      marginBottom: 2,
+    },
+    exercisePreviewMeta: {
+      fontFamily: "Roboto_400Regular",
+      fontSize: 12,
+    },
+    exercisePreviewQuote: {
+      fontFamily: "Roboto_400Regular",
+      fontStyle: "italic",
+      fontSize: 12,
+    },
+    exerciseCard: {
+      elevation: 4,
+    },
+    exerciseTitle: {
+      fontFamily: "Oswald_700Bold",
+      fontSize: 28,
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    exerciseMeta: {
+      fontFamily: "Roboto_500Medium",
+      fontSize: 16,
+      textAlign: "center",
+      marginBottom: 16,
+    },
+    exerciseDescription: {
+      fontFamily: "Roboto_400Regular",
+      fontSize: 16,
+      lineHeight: 24,
+      textAlign: "center",
+      marginBottom: 24,
+    },
+    instructionsContainer: {
+      padding: 16,
+      borderRadius: 8,
+    },
+    instructionsTitle: {
+      fontFamily: "Roboto_500Medium",
+      fontSize: 18,
+      marginBottom: 12,
+    },
+    instructionItem: {
+      flexDirection: "row",
+      marginBottom: 8,
+    },
+    instructionNumber: {
+      fontFamily: "Roboto_500Medium",
+      fontSize: 14,
+      marginRight: 8,
+      minWidth: 20,
+    },
+    instructionText: {
+      fontFamily: "Roboto_400Regular",
+      fontSize: 14,
+      lineHeight: 20,
+      flex: 1,
+    },
+    navigationContainer: {
+      flexDirection: "row",
+      padding: 16,
+      paddingBottom: 32,
+      justifyContent: "space-between",
+    },
+    navButton: {
+      flex: 0.45,
+    },
+    startButton: {
+      marginTop: 20,
+    },
+    actionButton: {
+      marginTop: 20,
+    },
+    completionCard: {
+      elevation: 4,
+      marginBottom: 20,
+    },
+    completionTitle: {
+      fontFamily: "Oswald_700Bold",
+      fontSize: 28,
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    completionSubtitle: {
+      fontFamily: "Roboto_500Medium",
+      fontSize: 18,
+      textAlign: "center",
+      marginBottom: 24,
+    },
+    statsContainer: {
+      flexDirection: "row",
+      justifyContent: "space-around",
+      marginBottom: 24,
+    },
+    statItem: {
+      alignItems: "center",
+    },
+    statValue: {
+      fontFamily: "Oswald_700Bold",
+      fontSize: 24,
+    },
+    statLabel: {
+      fontFamily: "Roboto_400Regular",
+      fontSize: 14,
+      marginTop: 4,
+    },
+    quoteContainer: {
+      padding: 16,
+      borderRadius: 8,
+    },
+    quoteText: {
+      fontFamily: "Roboto_400Regular",
+      fontStyle: "italic",
+      fontSize: 16,
+      lineHeight: 24,
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    quoteAuthor: {
+      fontFamily: "Roboto_500Medium",
+      fontSize: 14,
+      textAlign: "center",
+    },
+    exerciseQuoteContainer: {
+      padding: 16,
+      borderRadius: 8,
+      marginTop: 16,
+    },
+    exerciseQuoteText: {
+      fontFamily: "Roboto_400Regular",
+      fontStyle: "italic",
+      fontSize: 16,
+      lineHeight: 24,
+      textAlign: "center",
+      marginBottom: 8,
+    },
+    exerciseQuoteAuthor: {
+      fontFamily: "Roboto_500Medium",
+      fontSize: 14,
+      textAlign: "center",
+    },
+  });
